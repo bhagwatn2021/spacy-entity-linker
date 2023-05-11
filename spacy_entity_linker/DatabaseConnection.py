@@ -13,7 +13,7 @@ conn = None
 entity_cache = {}
 chain_cache = {}
 
-DB_DEFAULT_PATH = os.path.abspath(os.path.join(__file__, "../../data_spacy_entity_linker/wikidb_filtered.db"))
+DB_DEFAULT_PATH = os.path.abspath("/anaconda/envs/azureml_py38/lib/python3.8/site-packages/data_spacy_entity_linker/wikidb_filtered.db")
 
 wikidata_instance = None
 
@@ -52,9 +52,7 @@ class WikidataQueryController:
 
     def init_database_connection(self, path=DB_DEFAULT_PATH):
         # check if the database exists
-        if not os.path.exists(DB_DEFAULT_PATH):
-            # Automatically download the knowledge base if it isn't already
-            download_knowledge_base()
+     
         self.conn = sqlite3.connect(path, check_same_thread=False)
 
     def clear_cache(self):
