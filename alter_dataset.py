@@ -65,7 +65,7 @@ items_df.to_csv("items-alias-entities.csv")
 statements_df = pd.read_csv("statements-entities.csv")[['source_item_id', 'edge_property_id', 'target_item_id']]
 statements_df['source_item_id'] = statements_df['target_item_id'].astype(int) 
 items_df = pd.DataFrame(columns=['page_id','item_id','title', 'views'])
-for filename in os.listdir("items-alias-csv-split"):
+for filename in os.listdir("page-csv-split"):
     f = os.path.join("page-csv-split", filename)
     # checking if it is a file
     print(f)
