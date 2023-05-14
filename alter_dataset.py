@@ -2,6 +2,7 @@ import os
 import pandas as pd 
 import numpy
 from numpy import genfromtxt
+import csv, sqlite3
 
 wikidata_entities = ["97570923","974144","96","87866152","85000195","846570","8333","83267","82955","817393","8148","806798","7748","76793","766866","76074","7314586","7188","65087482","6279","6266","610018","58968","5043","47913","467","462","458","455011","43229","428148","420474","41171","40231","3918","37230","3624078","3612401","340169","3365273","331483","317","309","3089570","30","2979","29552","29468","289891","28136847","241588","2386606","2368859","23505","22687","22686","2167348","2151621","207","192797","192692","180774","18028810","178790","167037","1658150","164597","160381","159810","1553390","15228","1464994","1403016","133346","12908","12377291","1211427","11698","11696","1124","11231","11042","11033","110315740","105764136","1057263","102232426","926348"]
 wikidata_entities = [int(entity) for entity in wikidata_entities] 
@@ -65,7 +66,7 @@ items_df.to_csv("items-alias-entities.csv")
 statements_df = pd.read_csv("statements-entities.csv")[['source_item_id', 'edge_property_id', 'target_item_id']]
 statements_df['source_item_id'] = statements_df['target_item_id'].astype(int) 
 items_df = pd.DataFrame(columns=['page_id','item_id','title', 'views'])
-for filename in os.listdir("page-csv-split"):
+for filename in os.listdir("items-alias-csv-split"):
     f = os.path.join("page-csv-split", filename)
     # checking if it is a file
     print(f)
@@ -105,6 +106,41 @@ statements_df.rename(columns={"Unnamed: 0": "index"},inplace=True)
 statements_df.head(10)
 statements_df.to_csv("statements.csv")
 
+# https://stackoverflow.com/questions/2887878/importing-a-csv-file-into-a-sqlite3-database-table-using-python
+# https://www.sqlitetutorial.net/sqlite-python/delete/ 
+
+
+DB_DEFAULT_PATH = os.path.abspath("/anaconda/envs/azureml_py38/lib/python3.8/site-packages/data_spacy_entity_linker/wikidb_filtered.db")
+
+conn = sqlite3.connect(DB_DEFAULT_PATH, check_same_thread=False)
+cur = conn.cursor()
+
+cur.execute("DELETE FROM joined")
+cur.execute("DELETE FROM aliases")
+cur.execute("DELETE FROM statements")
+
+with open('joined.csv','r') as fin: # `with` statement available in 2.5+
+    # csv.DictReader uses first line in file for column headings by default
+    dr = csv.DictReader(fin) # comma is default delimiter
+    to_db = [(i['item_id'], i['en_label'], i['en_description'], i['page_id'], i['views'], i['inlinks']) for i in dr]
+
+cur.executemany("INSERT INTO joined(item_id,en_label,en_description,page_id,views,inlinks) VALUES (?, ?, ?, ?, ?, ?);", to_db)
+
+with open('aliases.csv','r') as fin: # `with` statement available in 2.5+
+    # csv.DictReader uses first line in file for column headings by default
+    dr = csv.DictReader(fin) # comma is default delimiter
+    to_db = [(i['item_id'], i['en_alias'], i['en_alias_lowercase']) for i in dr]
+
+cur.executemany("INSERT INTO aliases(item_id,en_alias,en_alias_lowercase) VALUES (?, ?, ?);", to_db)
+
+with open('statements-entities.csv','r') as fin: # `with` statement available in 2.5+
+    # csv.DictReader uses first line in file for column headings by default
+    dr = csv.DictReader(fin) # comma is default delimiter
+    to_db = [(i['source_item_id'], i['edge_property_id'], i['target_item_id']) for i in dr]
+cur.executemany("INSERT INTO statements(source_item_id,edge_property_id,target_item_id) VALUES (?, ?, ?);", to_db)
+
+conn.commit()
+conn.close()
 
 
    
