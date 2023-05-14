@@ -32,6 +32,7 @@ It also comes along with a number of disadvantages:
 To install the package, run:
 ```bash
 pip install spacy-entity-linker
+https://github.com/neel-forwardedge/spacy-entity-linker.git
 ```
 
 Afterwards, the knowledge base (Wikidata) must be downloaded. This can be either be done by manually calling
@@ -45,6 +46,7 @@ This will download and extract a ~1.3GB file that contains a preprocessed versio
 
 ## Use
 
+To use the original model with the original dataset: 
 ```python
 import spacy  # version 3.5
 
