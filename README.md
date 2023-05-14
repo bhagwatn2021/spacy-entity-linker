@@ -32,7 +32,7 @@ It also comes along with a number of disadvantages:
 To install the package, run:
 ```bash
 pip install spacy-entity-linker
-https://github.com/neel-forwardedge/spacy-entity-linker.git
+git clone https://github.com/neel-forwardedge/spacy-entity-linker.git
 ```
 
 Afterwards, the knowledge base (Wikidata) must be downloaded. This can be either be done by manually calling
@@ -43,6 +43,40 @@ python -m spacy_entity_linker "download_knowledge_base"
 
 or when you first access the entity linker through spacy.
 This will download and extract a ~1.3GB file that contains a preprocessed version of Wikidata.
+
+The modified datasource must also be downloaded as well from Kaggle via this link: https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data
+
+Once it is downloaded from Kaggle and unzipped, there will be 7 files: 
+
+item.csv
+item_aliases.csv
+link_annotated_text.jsonl
+page.csv
+property.csv
+property_aliases.csv
+statements.csv
+
+To change the dataset, we need item.csv, item_aliases.csv, page.csv, and statements.csv. 
+
+Move each file to a separate, empty folder, then run the following shell commands to split files into sizes that Pandas can process:
+
+```bash
+lines=100; { read header && sed "1~$((${lines}-1)) s/^/${header}\n/g" | split -l 1000000 --numeric-suffixes=1 --additional-suffix=.csv - file_ ; } < DIRNAME/item.csv
+
+lines=100; { read header && sed "1~$((${lines}-1)) s/^/${header}\n/g" | split -l 1000000 --numeric-suffixes=1 --additional-suffix=.csv - file_ ; } < DIRNAME/item_aliases.csv
+
+lines=100; { read header && sed "1~$((${lines}-1)) s/^/${header}\n/g" | split -l 1000000 --numeric-suffixes=1 --additional-suffix=.csv - file_ ; } < DIRNAME/page.csv
+
+lines=100; { read header && sed "1~$((${lines}-1)) s/^/${header}\n/g" | split -l 1000000 --numeric-suffixes=1 --additional-suffix=.csv - file_ ; } < DIRNAME/statements.csv
+```
+
+Move the original files out of the directory after splitting them, as we do not want Pandas to process these files. 
+
+Then, run the following Python script to alter the SQLite database to use the modified dataset: 
+
+```bash
+python alter_dataset.py
+```
 
 ## Use
 
@@ -73,6 +107,14 @@ doc[3:7]._.linkedEntities.pretty_print()
 # OUTPUT:
 # https://www.wikidata.org/wiki/Q194318     Pirates of the Caribbean        Series of fantasy adventure films
 ```
+
+To use the modified dataset for testing, run: 
+
+```bash 
+python spacy_entity_linker/test_EntityLinker.py
+```
+
+You can change the test cases in this file to run them on the modified entity linker. 
 
 ### EntityCollection
 
