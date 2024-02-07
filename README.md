@@ -4,6 +4,9 @@
 [![pypi Version](https://img.shields.io/pypi/v/spacy-entity-linker.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/spacy-entity-linker/)
 # Spacy Entity Linker
 
+[![Read this working paper to learn how it works]([https://github.com/egerber/spaCy-entity-linker/actions/workflows/tests.yml/badge.svg)](https://github.com/egerber/spaCy-entity-linker/actions/workflows/tests.yml](https://medium.com/@bhagwatn2021/entity-linking-b3583af53421)
+
+
 ## Introduction
 
 Spacy Entity Linker is a pipeline for spaCy that performs Linked Entity Extraction with Wikidata on a given Document.
